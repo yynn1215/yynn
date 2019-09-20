@@ -1,0 +1,5 @@
+main.c:75:1:__io_putchar	24	static
+main.c:99:6:HAL_ADC_ConvCpltCallback	0	static
+main.c:263:6:SystemClock_Config	96	static
+main.c:141:5:main	24	static
+main.c:309:6:Error_Handler	0	static
