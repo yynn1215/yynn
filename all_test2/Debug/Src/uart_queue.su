@@ -1,0 +1,14 @@
+uart_queue.c:23:22:uart_queue_increase_point_value	0	static
+uart_queue.c:40:6:UartQueue_Serial_Initialize	0	static
+uart_queue.c:45:10:UartQueue_Serial_Is_Empty	0	static
+uart_queue.c:54:6:UartQueue_Serial_EnQueue	0	static
+uart_queue.c:60:6:print_que	24	static
+uart_queue.c:71:10:UartQueue_Serial_DeQueue	8	static
+uart_queue.c:84:6:Uart_6_Queue_Comm_Initialize	0	static
+uart_queue.c:89:10:Uart_6_Queue_Comm_Is_Empty	0	static
+uart_queue.c:98:6:Uart_6_Queue_Comm_EnQueue	0	static
+uart_queue.c:104:10:Uart_6_Queue_Comm_DeQueue	8	static
+uart_queue.c:135:6:EventQueue_Initialize	0	static
+uart_queue.c:140:10:EventQueue_Is_Empty	0	static
+uart_queue.c:149:6:EventQueue_EnQueue	8	static
+uart_queue.c:156:19:EventQueue_DeQueue	12	static

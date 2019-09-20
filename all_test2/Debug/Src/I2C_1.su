@@ -1,0 +1,2 @@
+I2C_1.c:13:14:I2C_Write	24	static
+I2C_1.c:35:14:I2C_ReadMulti	40	static
