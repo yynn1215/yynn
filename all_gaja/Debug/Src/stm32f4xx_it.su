@@ -19,4 +19,4 @@ stm32f4xx_it.c:320:6:I2C1_EV_IRQHandler	0	static
 stm32f4xx_it.c:334:6:I2C1_ER_IRQHandler	0	static
 stm32f4xx_it.c:348:6:USART1_IRQHandler	8	static
 stm32f4xx_it.c:366:6:EXTI15_10_IRQHandler	8	static
-stm32f4xx_it.c:380:6:USART6_IRQHandler	8	static
+stm32f4xx_it.c:383:6:USART6_IRQHandler	8	static

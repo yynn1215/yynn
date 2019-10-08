@@ -7,7 +7,11 @@
 
 #include "tm_stm32_delay.h"
 
+
+
+extern int voice_key;
 /* Functions for delay */
+
 __IO uint32_t TM_Time2 = 0;
 __IO uint32_t TM_Time = 0;
 
@@ -222,6 +226,7 @@ void HAL_IncTick(void) {
 	TM_DELAY_1msHandler();
 }
 
+
 void HAL_Delay(uint32_t Delay) {
 	/* Delay for amount of milliseconds */
 	/* Check if we are called from ISR */
@@ -231,6 +236,7 @@ void HAL_Delay(uint32_t Delay) {
 
 		/* Count interrupts */
 		while ((HAL_GetTick() - tickstart) < Delay) {
+
 #ifdef DELAY_SLEEP
 			/* Go sleep, wait systick interrupt */
 			__WFI();

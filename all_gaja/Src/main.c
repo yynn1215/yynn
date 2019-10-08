@@ -30,6 +30,7 @@
 /* USER CODE BEGIN Includes */
 #include "hcsr04.h"
 #include "uart_test.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,37 +104,39 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	else if(adcIndex == 1)
 	{
 		adcval[1]=HAL_ADC_GetValue(&hadc3);
-		if(band_info[FLAG]==3)
+#if 1
+		if((band_info[FLAG]!=1)&& (band_info[FLAG]!=2))
 		{
-
+			  if(hcsr04.Distance>=1)
+			  {
+				  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+			  }
 			TIM4->CCR4=2600+(((uint16_t)adcval[0])/3);
 			//printf("%d\n",((uint16_t)adcval[0])/3);
 			if(adcval[1]<1900) //앞으로
 			{
+				HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
+				TIM1->CCR2=600;
 				  if(hcsr04.Distance<1)
 				  {
 					  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
 				  }
-				  else if(hcsr04.Distance>=1)
-				  {
-					  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
-				  }
-				HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
-				TIM1->CCR2=300;
 			}
-			else if(adcval[1]>2200) //뒤로
+			else if(adcval[1]>2250) //뒤로
 			{
-				HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 				HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,0);
-				TIM1->CCR2=300;
+				HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+
+				TIM1->CCR2=600;
 			}
-			else if((adcval[1]>=1900) && (adcval[1]<=2200))
+			else
 			{
 				TIM1->CCR2=0;
 			}
 			//printf("%d\n",adcval[1]);
 			//printf("test\n");
 		}
+#endif
 	}
 	adcIndex++;
 	if(adcIndex == 2)
@@ -144,6 +147,29 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
 	HAL_ADC_Start_IT(&hadc3);
 }
+
+void HAL_Delay1(uint32_t Delay)
+{
+  uint32_t tickstart1 = HAL_GetTick();
+
+
+  /* Add a freq to guarantee minimum wait */
+
+  while((HAL_GetTick() - tickstart1) < Delay)
+  {
+	  TM_HCSR04_Read(&hcsr04);
+	  //printf("%f\n",hcsr04.Distance);
+	  if((hcsr04.Distance<1) && (voice_key==1) )
+	  {
+		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+	  	break;
+	  }
+  }
+}
+
+
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -158,8 +184,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	band_info[ROLL]=0;
 	band_info[FLAG]=3;
+	band_info[ROLL]=0;
+
   /* USER CODE END 1 */
   
 
@@ -235,7 +262,8 @@ int main(void)
 #endif
 	  if(band_info[FLAG]==1)
 	  {
-		  if(band_info[PITCH]>10)
+		  UART6_Test();
+		  if(band_info[PITCH]>15)
 			  //if(band_info[PITCH]>25)
 		  {
 			  TIM4->CCR4=3250+((int16_t)band_info[PITCH]*15*-1);
@@ -243,7 +271,7 @@ int main(void)
 			  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,1);
 			  //HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,0);
 		  }
-		  else if(band_info[PITCH]<-10)
+		  else if(band_info[PITCH]<-15)
 			  //if(band_info[PITCH]<-25)
 		  {
 			  TIM4->CCR4=3250+((int16_t)band_info[PITCH]*15*-1);
@@ -257,34 +285,39 @@ int main(void)
 			  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_7, GPIO_PIN_SET);
 		  }
 		  //else if(IMU.Pitch>=20 && IMU.Pitch<=-20)
-
+		  UART6_Test();
 		  if(band_info[ROLL] <150 && band_info[ROLL]>90)
 			  //if(band_info[ROLL]<150 && band_info[ROLL]>90)
 		  {
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+			  TIM1->CCR2=400;
 			  if(hcsr04.Distance<1)
 			  {
 				  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
 			  }
-			  TIM1->CCR2=400;
+
 			  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_7,1);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
+
 		  }
 		  //if(band_info[ROLL]>-150 && band_info[ROLL]<-90)
 		  else if(band_info[ROLL] > -150 && band_info[ROLL] <-90)
 		  {
-			HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,0);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 			  TIM1->CCR2= 400;
 			  HAL_GPIO_WritePin(GPIOF,GPIO_PIN_7,0);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,0);
+
 		  }
 		  else
 		  {
 			  TIM1->CCR2=0;
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
 		  }
 
 	  }
-	  UART6_Test();
-	  if(band_info[FLAG]==2)
+
+	  else if(band_info[FLAG]==2)
 	  {
 		  TIM1->CCR2=0;
 		  voice_key=band_info[ROLL];
@@ -293,31 +326,38 @@ int main(void)
 			  TIM4->CCR4=3250;
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
-			  TIM1->CCR2=300;
-			  if(hcsr04.Distance<1)
-			  {
-				  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
-			  }
-			  //HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  TIM1->CCR2=400;
+			  HAL_Delay1(3000);
+//			  if(hcsr04.Distance<1)
+//			  {
+//				  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+//			  }
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  band_info[ROLL]=5;
 		  }
 		  else if(voice_key==2)
 		  {
 			  TIM4->CCR4=3250;
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,0);
-			  TIM1->CCR2=300;
-			     HAL_Delay(1800);
+			  TIM1->CCR2=500;
+			   HAL_Delay(2300);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  band_info[ROLL]=5;
 		  }
 		  else if(voice_key==3)
 		  {
 			  TIM4->CCR4=3250+880;
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
-			  TIM1->CCR2=400;
-			  HAL_Delay(3500);
+			  TIM1->CCR2=550;
+			  HAL_Delay1(2200);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
-			  band_info[ROLL]=1;
+			  TIM4->CCR4=3250;
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+			  HAL_Delay1(1000);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  band_info[ROLL]=5;
 
 		  }
 		  else if(voice_key==4)
@@ -325,20 +365,28 @@ int main(void)
 			  TIM4->CCR4=3250-880;
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,1);
-			  TIM1->CCR2=400;
-			  HAL_Delay(3500);
+			  TIM1->CCR2=550;
+			  HAL_Delay1(2200);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
-			  band_info[ROLL]=1;
+			  TIM4->CCR4=3250;
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,0);
+			  HAL_Delay1(1000);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  band_info[ROLL]=5;
 
 		  }
 		  else if(voice_key==5)
 		  {
 			  TIM1->CCR2=0;
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,1);
+			  band_info[FLAG]=3;
+
 
 		  }
 
 	  }
+	  //printf("0: %d ,1: %d , %f \n",adcval[0],adcval[1],hcsr04.Distance);
+	  //printf("%f\n",hcsr04.Distance);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

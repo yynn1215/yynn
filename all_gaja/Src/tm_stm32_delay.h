@@ -279,6 +279,9 @@ TM_DELAY_Timer_t* TM_DELAY_TimerAutoReloadValue(TM_DELAY_Timer_t* Timer, uint32_
  */
 
 /**
+ *
+ *
+ *
  * @brief  User function, called each 1ms when interrupt from timer happen
  * @note   Here user should put things which has to be called periodically
  * @param  None
@@ -286,7 +289,7 @@ TM_DELAY_Timer_t* TM_DELAY_TimerAutoReloadValue(TM_DELAY_Timer_t* Timer, uint32_
  * @note   With __weak parameter to prevent link errors if not defined by user
  */
 void TM_DELAY_1msHandler(void);
-
+void Delay_handler(void);
 /**
  * @}
  */
